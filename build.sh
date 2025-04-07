@@ -9,4 +9,7 @@ pip install -r requirements.txt
 python manage.py collectstatic --no-input
 
 # Apply migrations
-python manage.py migrate 
+python manage.py migrate
+
+# Create default categories
+python manage.py create_default_categories 
