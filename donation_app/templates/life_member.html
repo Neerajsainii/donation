@@ -1,0 +1,394 @@
+{% extends 'base.html' %}
+
+{% block title %}ISKCON Lifetime Membership{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-12 text-center mb-5">
+            <h1 class="display-4 mb-3">ISKCON Lifetime Membership at Rs.35,555 /- Only</h1>
+            <p class="lead">(Installment option is also available)</p>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Patronship card on completion of your contribution</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Accommodation of special rates for 3 days in any ISKCON guest house in one calendar year</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Tax benefit under section 80G</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Special Prasadam on your and your family member's major life events like birthdays and Anniversaries</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Books for Spiritual Enlightenment</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Jap mala and bead bag</li>
+                        <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Special Passes for entry on major festivals and events</li>
+                    </ul>
+                    <p class="mb-0">For any query call on <strong>+91-7669911412</strong></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Donation of Rs.35,555 for Life Patron Membership Programme</h3>
+                    <div class="d-grid gap-3">
+                        <button type="button" class="btn btn-primary btn-lg membership-btn" data-membership="Lifetime" data-amount="35555">One time payment</button>
+                        <p>Part contribution option is also available. We offer flexible payment options to suit your needs. Choose from equal installments over 3, 6, or 12 months.</p>
+                        <p>To make things even easier, you can automate your contributions through ICICI Mandate registration. Simply set up the amount and mention "Life Patron Membership" during registration, and our team will automatically map your payments. This way, you can enjoy the benefits of being a Life Patron without worrying about remembering manual payments.</p>
+                        <p>When you register for an e-NACH mandate with ICICI, you're essentially giving permission to ISKCON Dwarka to automatically deduct payments from your account at specific intervals, eliminating the need for manual payments each time. You can set up a minimum contribution of Rs 1000 using this.</p>
+                        <p>All you need to do is to fill up your information, enter start and end date, choose frequency and enter any amount greater than Rs 999.</p>
+                        <p>You can donate through cash, demand draft, cheque, credit/debit card or via bank transfer (NEFT) or online.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Hassle free contribution via Auto deduction from your Account</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <form id="installmentForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Select part contribution option:</label>
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="paymentOption" id="option3Part" value="3part">
+                                            <label class="form-check-label" for="option3Part">3 Part Payment (Rs. 11,852)</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="paymentOption" id="option6Part" value="6part">
+                                            <label class="form-check-label" for="option6Part">6 Part Payment (Rs. 5,926)</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="paymentOption" id="optionENach" value="enach">
+                                            <label class="form-check-label" for="optionENach">E-Nach (Auto Deduction Enablement)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn-primary" id="installmentButton">Donate Now</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="alert alert-info" role="alert">
+                                <h5 class="alert-heading">Gentle Request for Net Banking payment!</h5>
+                                <p>While doing Paytm or Bank Payments (NEFT/RTGS) please send us a screenshot with your details on our Whatsapp No- <strong>+91-9599460493</strong>. so that we can map your payment correctly.</p>
+                                <p class="mb-0"><strong>DO NOT FORGET TO MENTION THE LIFETIME MEMBERSHIP FEE IN YOUR MESSAGE.</strong><br>
+                                You may also call on this no for other queries.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-secondary text-white">
+                    <h3 class="mb-0">Donation Through Bank (NEFT/RTGS)</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Bank Name:</strong> Yes Bank</li>
+                        <li class="list-group-item"><strong>Account Name:</strong> INTERNATIONAL SOCIETY FOR KRISHNA CONSCIOUSNESS</li>
+                        <li class="list-group-item"><strong>Account Number:</strong> 093294600000129</li>
+                        <li class="list-group-item"><strong>IFSC Code:</strong> YESB0000932</li>
+                    </ul>
+                    <p class="mt-3 mb-0"><strong>80G AVAILABLE AS PER INCOME TAX ACT 1961 AND RULES MADE THEREUNDER</strong></p>
+                    <p><strong>Income Tax Exemption (80-G) Number AAATI0017PF20219</strong></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">PAY BY UPI</h3>
+                </div>
+                <div class="card-body text-center">
+                    <h4 class="mb-4">UPI Address: 8527405353@hdfcbank</h4>
+                    <div class="qr-code mb-3">
+                        <!-- Placeholder for QR code image -->
+                        <img src="https://via.placeholder.com/250x250" alt="UPI QR Code" class="img-fluid">
+                    </div>
+                    <p class="mb-0">Scan the QR code to pay via any UPI app</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Membership Form (Hidden Initially) -->
+    <div id="membershipFormContainer" class="card shadow-sm d-none mb-5">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0" id="formTitle">Complete Your Membership</h3>
+        </div>
+        <div class="card-body">
+            <form id="membershipForm" method="post" action="{% url 'process_membership' %}">
+                {% csrf_token %}
+                <input type="hidden" id="membershipType" name="membershipType" value="">
+                <input type="hidden" id="amount" name="amount" value="">
+                
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{% if user.is_authenticated %}{{ user.get_full_name }}{% endif %}" {% if user.is_authenticated %}readonly{% else %}required{% endif %}>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" {% if user.is_authenticated %}readonly{% else %}required{% endif %}>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="text" class="form-control" id="phone" name="phone" value="{% if user.is_authenticated and user.userprofile.contact %}{{ user.userprofile.contact }}{% endif %}" required>
+                </div>
+                
+                {% if not user.is_authenticated %}
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    Please <a href="{% url 'login' %}">login</a> or <a href="{% url 'login' %}">create an account</a> to become a member.
+                </div>
+                {% else %}
+                <!-- Payment Method Selection -->
+                <div class="mb-4">
+                    <label class="form-label">Payment Method</label>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="razorpay" value="razorpay" checked>
+                            <label class="form-check-label" for="razorpay">
+                                <img src="https://cdn.razorpay.com/logo/rzp-logo.svg" alt="Razorpay" height="30">
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="upi" value="upi">
+                            <label class="form-check-label" for="upi">
+                                UPI
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="netbanking" value="netbanking">
+                            <label class="form-check-label" for="netbanking">
+                                Net Banking
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Complete Membership</button>
+                    <button type="button" class="btn btn-outline-secondary" id="cancelMembership">Cancel</button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Life Patron Membership - What Does It Include?</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h4><i class="fas fa-hands-helping me-2 text-primary"></i> Seva (Service)</h4>
+                                <p>Accept the opportunity to serve the Supreme Lord Sri Krishna and express your thanks with sincere service. Feel the delight of being the ultimate giver and receiver.</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4><i class="fas fa-book me-2 text-primary"></i> Spiritual Knowledge</h4>
+                                <p>Transform your home into a metaphysical library with a full set of Shrimad-Bhagavatam in your preferred language – Bengali, Hindi, or English.</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4><i class="fas fa-utensils me-2 text-primary"></i> Meals</h4>
+                                <p>Whether you stay overnight or not, relish free prasadam in every ISKCON centre for three days per year, twice daily. Indulge in temple resident meals, excluding restaurant meals or snacks sold on temple premises. Special occasions like birthdays or anniversaries are marked with cake prasadam.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h4><i class="fas fa-id-card me-2 text-primary"></i> Patron Card/Transfer of Patronship</h4>
+                                <p>Receive a centrally issued hologram patronship card with your portrait and patron number. Stay connected with an up-to-date list of ISKCON centres across the world. The patron's card represents your devotion and connection to the global ISKCON family.</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4><i class="fas fa-building me-2 text-primary"></i> Contribution to Sri Sri Rukmini Dwarkadhish Temple</h4>
+                                <p>Your generous donation is crucial in constructing the Sri Sri Rukmini Dwarkadhish Temple. Contribute to the physical manifestation of a divine space that echoes the spirit of devotion.</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4><i class="fas fa-gift me-2 text-primary"></i> Prasadam, on Special Occasions</h4>
+                                <p>Receive prasadam on special occasions such as birthdays and anniversaries as part of blessings from lord Krishna on your special day.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Why take a Lifetime Membership from ISKCON?</h3>
+                </div>
+                <div class="card-body">
+                    <p>Choosing a lifelong membership at ISKCON represents a commitment to spiritual growth and service. By becoming a patron, you will gain personal benefits while actively contributing to the global propagation of Krishna awareness.</p>
+                    <p>Begin this revolutionary journey with ISKCON and enjoy a lifetime of spiritual importance.</p>
+                    
+                    <div class="alert alert-success mt-4">
+                        <h4 class="alert-heading">Who Can Enroll?</h4>
+                        <p class="mb-0">Open to everyone, regardless of citizenship or country of residence. Embrace the spiritual journey without restrictions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">FAQ</h3>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    How do you choose the option for Life Patron membership?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Get in touch with our Bhisma department office to become a Life Patron. Our Bhishma office team will assist you with the easy enrollment process so that you can begin your spiritual journey.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Who can enrol for a Life Patron membership?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Anybody can become a Life Patron, regardless of citizenship or place of residence. We invite people from all backgrounds to become a part of our worldwide community and discover the spiritual depths of ISKCON.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    What is the current donation amount for ISKCON Life Patronship?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    ISKCON Life Patronage requires a one-time, non-refundable gift of Rs. 35,555. This sum helps spread Krishna awareness worldwide and opens the door to a lifetime of spiritual benefits.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    When do I qualify to receive the associated privileges?
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    You can obtain the related benefits once the gift has been completed successfully. This covers the patronage card, meals at the temple, spiritual books, and other things.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFive">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                    What payment modes are available to donate?
+                                </button>
+                            </h2>
+                            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Donations can be made by cash, demand draft, cheque, credit/debit card or via bank transfer (NEFT).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const membershipButtons = document.querySelectorAll('.membership-btn');
+    const membershipFormContainer = document.getElementById('membershipFormContainer');
+    const formTitle = document.getElementById('formTitle');
+    const membershipTypeInput = document.getElementById('membershipType');
+    const amountInput = document.getElementById('amount');
+    const cancelButton = document.getElementById('cancelMembership');
+    
+    membershipButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const membershipType = this.dataset.membership;
+            const amount = this.dataset.amount;
+            
+            formTitle.textContent = `Complete Your ${membershipType} Membership`;
+            membershipTypeInput.value = membershipType;
+            amountInput.value = amount;
+            
+            membershipFormContainer.classList.remove('d-none');
+            membershipFormContainer.scrollIntoView({behavior: 'smooth'});
+        });
+    });
+    
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function() {
+            membershipFormContainer.classList.add('d-none');
+        });
+    }
+    
+    // Handle installment form
+    const installmentButton = document.getElementById('installmentButton');
+    if (installmentButton) {
+        installmentButton.addEventListener('click', function() {
+            const selected = document.querySelector('input[name="paymentOption"]:checked');
+            if (selected) {
+                const option = selected.value;
+                let amount = 35555;
+                let membershipType = "Lifetime";
+                
+                if (option === "3part") {
+                    amount = 11852;
+                    membershipType = "Lifetime (3 Part)";
+                } else if (option === "6part") {
+                    amount = 5926;
+                    membershipType = "Lifetime (6 Part)";
+                } else if (option === "enach") {
+                    amount = 1000;
+                    membershipType = "Lifetime (E-Nach)";
+                }
+                
+                formTitle.textContent = `Complete Your ${membershipType} Membership`;
+                membershipTypeInput.value = membershipType;
+                amountInput.value = amount;
+                
+                membershipFormContainer.classList.remove('d-none');
+                membershipFormContainer.scrollIntoView({behavior: 'smooth'});
+            } else {
+                alert("Please select a payment option");
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

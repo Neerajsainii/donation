@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Thank You{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card shadow-sm">
+                <div class="card-body py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h1 class="display-4 mb-4">Thank You!</h1>
+                    <p class="lead mb-4">Your contribution has been received successfully.</p>
+                    
+                    <hr class="my-4">
+                    
+                    <p>Your generosity helps us continue our mission and make a positive impact in the community.</p>
+                    <p>A confirmation email has been sent to your registered email address.</p>
+                    
+                    <div class="mt-5">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary me-2">Go to Dashboard</a>
+                        {% endif %}
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">Return Home</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Share Section -->
+            <div class="mt-5">
+                <h5 class="mb-3">Share Your Contribution</h5>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="bi bi-facebook"></i> Share
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?text=I%20just%20made%20a%20donation%20to%20support%20a%20great%20cause!&url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-info">
+                        <i class="bi bi-twitter"></i> Tweet
+                    </a>
+                    <a href="https://wa.me/?text=I%20just%20made%20a%20donation%20to%20support%20a%20great%20cause!%20{{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-success">
+                        <i class="bi bi-whatsapp"></i> WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

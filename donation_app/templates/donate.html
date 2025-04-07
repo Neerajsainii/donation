@@ -1,0 +1,875 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Initiatives</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        :root {
+            --primary-color: #ff7000;
+            --secondary-color: #673ab7;
+            --bg-light: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            background-color: var(--bg-light);
+        }
+        
+        .header-nav {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 0;
+        }
+        
+        .donation-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .donation-section h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .donation-section p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .amount-selector {
+            margin: 20px 0;
+        }
+        
+        .amount-selector label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .amount-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .amount-option {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .amount-option:hover, .amount-option.selected {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+        .donate-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .donate-button:hover {
+            background-color: #e56500;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .section-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .payment-options {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .payment-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .payment-method {
+            display: inline-flex;
+            align-items: center;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-method:hover, .payment-method.selected {
+            border-color: var(--primary-color);
+            background-color: #fff6f0;
+        }
+        
+        .payment-method i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+        
+        .payment-details {
+            margin-top: 15px;
+            background-color: #efefef;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        
+        .payment-details h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        
+        .qr-code {
+            max-width: 150px;
+            margin: 10px auto;
+            display: block;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .popup {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 95%;
+        }
+
+        .hidden {
+            display: none;
+        }
+        
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 40px 0;
+        }
+        
+        .footer-links h5 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .footer-links ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .social-icons a {
+            color: white;
+            margin-right: 15px;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            color: var(--primary-color);
+        }
+        
+        .temple-status {
+            background-color: #f8e8d8;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--primary-color);
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <header class="header-nav">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1>Donation Initiatives</h1>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="/" class="text-white text-decoration-none me-3">Home</a>
+                    <a href="/leaderboard" class="text-white text-decoration-none">Donation Leaderboard</a>
+                </div>
+            </div>
+        </div>
+    </header> -->
+    <header class="header-nav">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1>Donation Initiatives</h1>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="{% url 'home' %}" class="text-white text-decoration-none me-3">Home</a>
+                    <a href="{% url 'leaderboard' %}" class="text-white text-decoration-none me-3">Leaderboard</a>
+                    <a href="{% url 'life_member' %}" class="text-white text-decoration-none me-3">Life Membership</a>
+                    {% if user.is_authenticated %}
+                    <div class="dropdown d-inline-block">
+                        <a class="text-white text-decoration-none dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> {{ user.first_name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'dashboard' %}">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="text-white text-decoration-none">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="container py-5">
+        <h1 class="text-center mb-4">OUR INITIATIVES</h1>
+        <p class="text-center fs-5 mb-5">The Blessed Act of Giving, The Joyous Shower of Blessings</p>
+        
+        <div class="temple-status mb-5">
+            <p class="mb-0"><strong>Temple Construction Donation Status:</strong> Feb 2025: Tiles committed till date 1,92,823 out of 2,25,000 tiles required for the temple construction. Contact: 9289784775</p>
+        </div>
+        
+        <!-- Food For Life Section -->
+        <section class="donation-section">
+            <div class="row">
+                <div class="col-md-5">
+                    <img src="{% static 'img/foodforlife.jpg' %}" alt="Food For Life" class="section-image">
+                </div>
+                <div class="col-md-7">
+                    <h2>Food For Life</h2>
+                    <p>Through the FOOD FOR LIFE program, we have offered hungry people nutritious, filling food. We have been able to feed more than 5 crore people. With each contribution you make, we will be able to feed 50 people. We urge you to donate for this blessed cause.</p>
+                    
+                    <div class="amount-selector">
+                        <label>Amount</label>
+                        <div class="amount-options" data-donation-type="food">
+                            <div class="amount-option" data-amount="1000">₹1000 (Donate 50 Meals)</div>
+                            <div class="amount-option" data-amount="2000">₹2000 (Donate 100 Meals)</div>
+                            <div class="amount-option" data-amount="5000">₹5000 (Donate 250 Meals)</div>
+                            <div class="amount-option" data-amount="10000">₹10000 (Donate 500 Meals)</div>
+                            <div class="amount-option" data-amount="20000">₹20000 (Donate 1000 Meals)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-options">
+                        <label>Payment Method</label>
+                        <div class="payment-methods" data-section="food">
+                            <div class="payment-method" data-method="upi" onclick="togglePaymentMethod('food', 'upi')">
+                                <i class="fas fa-mobile-alt"></i> UPI
+                            </div>
+                            <div class="payment-method" data-method="bank" onclick="togglePaymentMethod('food', 'bank')">
+                                <i class="fas fa-university"></i> Bank Transfer
+                            </div>
+                            <div class="payment-method" data-method="qr" onclick="togglePaymentMethod('food', 'qr')">
+                                <i class="fas fa-qrcode"></i> QR Code
+                            </div>
+                            <div class="payment-method" data-method="online" onclick="togglePaymentMethod('food', 'online')">
+                                <i class="fas fa-credit-card"></i> Online Payment
+                            </div>
+                        </div>
+                        
+                        <div id="food-upi-details" class="payment-details hidden">
+                            <h4>Pay by UPI</h4>
+                            <p><strong>UPI Address:</strong> 8527405353@hdfcbank</p>
+                        </div>
+                        
+                        <div id="food-bank-details" class="payment-details hidden">
+                            <h4>Bank Transfer Details</h4>
+                            <p><strong>Account Name:</strong> Donation Initiative<br>
+                            <strong>Account Number:</strong> 1234567890<br>
+                            <strong>IFSC Code:</strong> HDFC0001234<br>
+                            <strong>Bank:</strong> HDFC Bank</p>
+                        </div>
+                        
+                        <div id="food-qr-details" class="payment-details hidden">
+                            <h4>Scan QR Code</h4>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8527405353@hdfcbank" alt="QR Code" class="qr-code">
+                        </div>
+                        
+                        <div id="food-online-details" class="payment-details hidden">
+                            <button class="donate-button" onclick="showPopup('Food For Life')">Donate Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Prasadam Donation Section -->
+        <section class="donation-section">
+            <div class="row">
+                <div class="col-md-5">
+                    <img src="{% static 'img/prasadam.jpg' %}" alt="Prasadam Donation" class="section-image">
+                </div>
+                <div class="col-md-7">
+                    <h2>Prasadam Donation</h2>
+                    <p>Spread the love by making your contribution. Donate prasadam and let Lord Krishna shower his blessings on you and your family. Your contribution will help distribute sanctified food to devotees.</p>
+                    
+                    <div class="amount-selector">
+                        <label>Amount</label>
+                        <div class="amount-options" data-donation-type="prasadam">
+                            <div class="amount-option" data-amount="1250">₹1250 (For 50 People)</div>
+                            <div class="amount-option" data-amount="2500">₹2500 (For 100 People)</div>
+                            <div class="amount-option" data-amount="6250">₹6250 (For 250 People)</div>
+                            <div class="amount-option" data-amount="12500">₹12500 (For 500 People)</div>
+                            <div class="amount-option" data-amount="25000">₹25000 (For 1000 People)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-options">
+                        <label>Payment Method</label>
+                        <div class="payment-methods" data-section="prasadam">
+                            <div class="payment-method" data-method="upi" onclick="togglePaymentMethod('prasadam', 'upi')">
+                                <i class="fas fa-mobile-alt"></i> UPI
+                            </div>
+                            <div class="payment-method" data-method="bank" onclick="togglePaymentMethod('prasadam', 'bank')">
+                                <i class="fas fa-university"></i> Bank Transfer
+                            </div>
+                            <div class="payment-method" data-method="qr" onclick="togglePaymentMethod('prasadam', 'qr')">
+                                <i class="fas fa-qrcode"></i> QR Code
+                            </div>
+                            <div class="payment-method" data-method="online" onclick="togglePaymentMethod('prasadam', 'online')">
+                                <i class="fas fa-credit-card"></i> Online Payment
+                            </div>
+                        </div>
+                        
+                        <div id="prasadam-upi-details" class="payment-details hidden">
+                            <h4>Pay by UPI</h4>
+                            <p><strong>UPI Address:</strong> 8527405353@hdfcbank</p>
+                        </div>
+                        
+                        <div id="prasadam-bank-details" class="payment-details hidden">
+                            <h4>Bank Transfer Details</h4>
+                            <p><strong>Account Name:</strong> Donation Initiative<br>
+                            <strong>Account Number:</strong> 1234567890<br>
+                            <strong>IFSC Code:</strong> HDFC0001234<br>
+                            <strong>Bank:</strong> HDFC Bank</p>
+                        </div>
+                        
+                        <div id="prasadam-qr-details" class="payment-details hidden">
+                            <h4>Scan QR Code</h4>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8527405353@hdfcbank" alt="QR Code" class="qr-code">
+                        </div>
+                        
+                        <div id="prasadam-online-details" class="payment-details hidden">
+                            <button class="donate-button" onclick="showPopup('Prasadam Donation')">Donate Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Sudama Seva Section -->
+        <section class="donation-section">
+            <div class="row">
+                <div class="col-md-5">
+                    <img src="{% static 'img/sudama.jpg' %}" alt="Sudama Seva" class="section-image">
+                </div>
+                <div class="col-md-7">
+                    <h2>Sudama Seva</h2>
+                    <p>Become a Sudama Sevak by donating 1-square foot with Rs 6000 and have your name displayed on the floor or wall surface. You can give it either as a one-time payment or through monthly installments.</p>
+                    
+                    <div class="amount-selector">
+                        <label>Amount</label>
+                        <div class="amount-options" data-donation-type="sudama">
+                            <div class="amount-option" data-amount="6000">₹6000 (1 Square Foot)</div>
+                            <div class="amount-option" data-amount="12000">₹12000 (2 Square Feet)</div>
+                            <div class="amount-option" data-amount="30000">₹30000 (5 Square Feet)</div>
+                            <div class="amount-option" data-amount="60000">₹60000 (10 Square Feet)</div>
+                            <div class="amount-option" data-amount="120000">₹120000 (20 Square Feet)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-options">
+                        <label>Payment Method</label>
+                        <div class="payment-methods" data-section="sudama">
+                            <div class="payment-method" data-method="upi" onclick="togglePaymentMethod('sudama', 'upi')">
+                                <i class="fas fa-mobile-alt"></i> UPI
+                            </div>
+                            <div class="payment-method" data-method="bank" onclick="togglePaymentMethod('sudama', 'bank')">
+                                <i class="fas fa-university"></i> Bank Transfer
+                            </div>
+                            <div class="payment-method" data-method="qr" onclick="togglePaymentMethod('sudama', 'qr')">
+                                <i class="fas fa-qrcode"></i> QR Code
+                            </div>
+                            <div class="payment-method" data-method="online" onclick="togglePaymentMethod('sudama', 'online')">
+                                <i class="fas fa-credit-card"></i> Online Payment
+                            </div>
+                        </div>
+                        
+                        <div id="sudama-upi-details" class="payment-details hidden">
+                            <h4>Pay by UPI</h4>
+                            <p><strong>UPI Address:</strong> 8527405353@hdfcbank</p>
+                        </div>
+                        
+                        <div id="sudama-bank-details" class="payment-details hidden">
+                            <h4>Bank Transfer Details</h4>
+                            <p><strong>Account Name:</strong> Donation Initiative<br>
+                            <strong>Account Number:</strong> 1234567890<br>
+                            <strong>IFSC Code:</strong> HDFC0001234<br>
+                            <strong>Bank:</strong> HDFC Bank</p>
+                        </div>
+                        
+                        <div id="sudama-qr-details" class="payment-details hidden">
+                            <h4>Scan QR Code</h4>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8527405353@hdfcbank" alt="QR Code" class="qr-code">
+                        </div>
+                        
+                        <div id="sudama-online-details" class="payment-details hidden">
+                            <button class="donate-button" onclick="showPopup('Sudama Seva')">Donate Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Ekadashi Donation Section -->
+        <section class="donation-section">
+            <div class="row">
+                <div class="col-md-5">
+                    <img src="{% static 'img/ekadashi.jpg' %}" alt="Ekadashi Donation" class="section-image">
+                </div>
+                <div class="col-md-7">
+                    <h2>Ekadashi Donation</h2>
+                    <p>Spread the love by making your contribution. Donate on Ekadashi and let Lord Krishna shower his blessings on you. Your donation will support special Ekadashi services and food distribution.</p>
+                    
+                    <div class="amount-selector">
+                        <label>Amount</label>
+                        <div class="amount-options" data-donation-type="ekadashi">
+                            <div class="amount-option" data-amount="1250">₹1250 (For 50 People)</div>
+                            <div class="amount-option" data-amount="2500">₹2500 (For 100 People)</div>
+                            <div class="amount-option" data-amount="6250">₹6250 (For 250 People)</div>
+                            <div class="amount-option" data-amount="12500">₹12500 (For 500 People)</div>
+                            <div class="amount-option" data-amount="25000">₹25000 (For 1000 People)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-options">
+                        <label>Payment Method</label>
+                        <div class="payment-methods" data-section="ekadashi">
+                            <div class="payment-method" data-method="upi" onclick="togglePaymentMethod('ekadashi', 'upi')">
+                                <i class="fas fa-mobile-alt"></i> UPI
+                            </div>
+                            <div class="payment-method" data-method="bank" onclick="togglePaymentMethod('ekadashi', 'bank')">
+                                <i class="fas fa-university"></i> Bank Transfer
+                            </div>
+                            <div class="payment-method" data-method="qr" onclick="togglePaymentMethod('ekadashi', 'qr')">
+                                <i class="fas fa-qrcode"></i> QR Code
+                            </div>
+                            <div class="payment-method" data-method="online" onclick="togglePaymentMethod('ekadashi', 'online')">
+                                <i class="fas fa-credit-card"></i> Online Payment
+                            </div>
+                        </div>
+                        
+                        <div id="ekadashi-upi-details" class="payment-details hidden">
+                            <h4>Pay by UPI</h4>
+                            <p><strong>UPI Address:</strong> 8527405353@hdfcbank</p>
+                        </div>
+                        
+                        <div id="ekadashi-bank-details" class="payment-details hidden">
+                            <h4>Bank Transfer Details</h4>
+                            <p><strong>Account Name:</strong> Donation Initiative<br>
+                            <strong>Account Number:</strong> 1234567890<br>
+                            <strong>IFSC Code:</strong> HDFC0001234<br>
+                            <strong>Bank:</strong> HDFC Bank</p>
+                        </div>
+                        
+                        <div id="ekadashi-qr-details" class="payment-details hidden">
+                            <h4>Scan QR Code</h4>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8527405353@hdfcbank" alt="QR Code" class="qr-code">
+                        </div>
+                        
+                        <div id="ekadashi-online-details" class="payment-details hidden">
+                            <button class="donate-button" onclick="showPopup('Ekadashi Donation')">Donate Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Shravan Kumar Seva Section -->
+        <section class="donation-section">
+            <div class="row">
+                <div class="col-md-5">
+                    <img src="{% static 'img/shravana.jpg' %}" alt="Shravan Kumar Seva" class="section-image">
+                </div>
+                <div class="col-md-7">
+                    <h2>Shravan Kumar Seva</h2>
+                    <p>Our respect for the elderly and pregnant women is a reflection of our reverence for God. You can create an opportunity for someone to live a healthy future. We want your help to make the thought of free food delivery reach out even further. Contribute today.</p>
+                    
+                    <div class="amount-selector">
+                        <label>Amount</label>
+                        <div class="amount-options" data-donation-type="shravan">
+                            <div class="amount-option" data-amount="1050">₹1050</div>
+                            <div class="amount-option" data-amount="2100">₹2100</div>
+                            <div class="amount-option" data-amount="4200">₹4200</div>
+                            <div class="amount-option" data-amount="8400">₹8400</div>
+                            <div class="amount-option" data-amount="17500">₹17500</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-options">
+                        <label>Payment Method</label>
+                        <div class="payment-methods" data-section="shravan">
+                            <div class="payment-method" data-method="upi" onclick="togglePaymentMethod('shravan', 'upi')">
+                                <i class="fas fa-mobile-alt"></i> UPI
+                            </div>
+                            <div class="payment-method" data-method="bank" onclick="togglePaymentMethod('shravan', 'bank')">
+                                <i class="fas fa-university"></i> Bank Transfer
+                            </div>
+                            <div class="payment-method" data-method="qr" onclick="togglePaymentMethod('shravan', 'qr')">
+                                <i class="fas fa-qrcode"></i> QR Code
+                            </div>
+                            <div class="payment-method" data-method="online" onclick="togglePaymentMethod('shravan', 'online')">
+                                <i class="fas fa-credit-card"></i> Online Payment
+                            </div>
+                        </div>
+                        
+                        <div id="shravan-upi-details" class="payment-details hidden">
+                            <h4>Pay by UPI</h4>
+                            <p><strong>UPI Address:</strong> 8527405353@hdfcbank</p>
+                        </div>
+                        
+                        <div id="shravan-bank-details" class="payment-details hidden">
+                            <h4>Bank Transfer Details</h4>
+                            <p><strong>Account Name:</strong> Donation Initiative<br>
+                            <strong>Account Number:</strong> 1234567890<br>
+                            <strong>IFSC Code:</strong> HDFC0001234<br>
+                            <strong>Bank:</strong> HDFC Bank</p>
+                        </div>
+                        
+                        <div id="shravan-qr-details" class="payment-details hidden">
+                            <h4>Scan QR Code</h4>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8527405353@hdfcbank" alt="QR Code" class="qr-code">
+                        </div>
+                        
+                        <div id="shravan-online-details" class="payment-details hidden">
+                            <button class="donate-button" onclick="showPopup('Shravan Kumar Seva')">Donate Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Bhagavad Gita Section -->
+        <section class="donation-section">
+            <div class="row">
+                <div class="col-md-5">
+                    <img src="{% static 'img/bg.jpg' %}" alt="Bhagavad Gita" class="section-image">
+                </div>
+                <div class="col-md-7">
+                    <h2>Bhagavad Gita</h2>
+                    <p>You can spread the power of knowledge by sharing. Your Bhagavad Gita donation can impact someone's life in the same way it did for you! Help distribute this sacred text to seekers of spiritual wisdom.</p>
+                    
+                    <div class="amount-selector">
+                        <label>Amount</label>
+                        <div class="amount-options" data-donation-type="gita">
+                            <div class="amount-option" data-amount="1500">₹1500</div>
+                            <div class="amount-option" data-amount="3000">₹3000</div>
+                            <div class="amount-option" data-amount="4500">₹4500</div>
+                            <div class="amount-option" data-amount="7500">₹7500</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-options">
+                        <label>Payment Method</label>
+                        <div class="payment-methods" data-section="gita">
+                            <div class="payment-method" data-method="upi" onclick="togglePaymentMethod('gita', 'upi')">
+                                <i class="fas fa-mobile-alt"></i> UPI
+                            </div>
+                            <div class="payment-method" data-method="bank" onclick="togglePaymentMethod('gita', 'bank')">
+                                <i class="fas fa-university"></i> Bank Transfer
+                            </div>
+                            <div class="payment-method" data-method="qr" onclick="togglePaymentMethod('gita', 'qr')">
+                                <i class="fas fa-qrcode"></i> QR Code
+                            </div>
+                            <div class="payment-method" data-method="online" onclick="togglePaymentMethod('gita', 'online')">
+                                <i class="fas fa-credit-card"></i> Online Payment
+                            </div>
+                        </div>
+                        
+                        <div id="gita-upi-details" class="payment-details hidden">
+                            <h4>Pay by UPI</h4>
+                            <p><strong>UPI Address:</strong> 8527405353@hdfcbank</p>
+                        </div>
+                        
+                        <div id="gita-bank-details" class="payment-details hidden">
+                            <h4>Bank Transfer Details</h4>
+                            <p><strong>Account Name:</strong> Donation Initiative<br>
+                            <strong>Account Number:</strong> 1234567890<br>
+                            <strong>IFSC Code:</strong> HDFC0001234<br>
+                            <strong>Bank:</strong> HDFC Bank</p>
+                        </div>
+                        
+                        <div id="gita-qr-details" class="payment-details hidden">
+                            <h4>Scan QR Code</h4>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8527405353@hdfcbank" alt="QR Code" class="qr-code">
+                        </div>
+                        
+                        <div id="gita-online-details" class="payment-details hidden">
+                            <button class="donate-button" onclick="showPopup('Bhagavad Gita')">Donate Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Donation Popup Form -->
+    <div id="donationPopup" class="popup-overlay hidden" onclick="hidePopup(event)">
+        <div class="popup" onclick="event.stopPropagation()">
+            <h2 class="text-center mb-4">Make a Donation</h2>
+            <form id="donationForm" class="bg-white">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="contact" class="form-label">Contact:</label>
+                    <input type="tel" id="contact" name="contact" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="amount" class="form-label">Amount (INR):</label>
+                    <input type="number" id="amount" name="amount" class="form-control" required>
+                </div>
+
+                <input type="hidden" id="donationType" name="donationType">
+                <input type="hidden" id="frequency" name="frequency" value="one-time">
+
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" onclick="hidePopup()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="startPayment()">Proceed to Pay</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5>About Us</h5>
+                    <p>We are a non-profit organization working towards social welfare, focusing on providing food, education, and spiritual support to those in need.</p>
+                    <div class="social-icons mt-3">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4 footer-links">
+                    <h5>Quick Links</h5>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/leaderboard">Donation Leaderboard</a></li>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Contact Info</h5>
+                    <p><strong>Address:</strong><br>Plot No.-4, Sub-City Level, Sector-13, Delhi-110075</p>
+                    <p><strong>Email:</strong><br>info@donation.org</p>
+                    <p><strong>Phone:</strong><br>+91 8527405353</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <p>Copyright © 2025 All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Amount selection functionality
+        document.querySelectorAll('.amount-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from siblings
+                const parent = this.parentElement;
+                parent.querySelectorAll('.amount-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                
+                // Store the selected amount for later use
+                const amount = this.getAttribute('data-amount');
+                const donationType = parent.getAttribute('data-donation-type');
+                
+                // You can store these values in localStorage or directly set them when showing the popup
+                localStorage.setItem('selectedAmount', amount);
+                localStorage.setItem('selectedDonationType', donationType);
+            });
+        });
+
+        // Function to toggle payment methods
+        function togglePaymentMethod(section, method) {
+            // Remove selected class from all payment methods in the section
+            const methodElements = document.querySelectorAll(`.payment-methods[data-section="${section}"] .payment-method`);
+            methodElements.forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Add selected class to the clicked method
+            const selectedMethod = document.querySelector(`.payment-methods[data-section="${section}"] .payment-method[data-method="${method}"]`);
+            if (selectedMethod) {
+                selectedMethod.classList.add('selected');
+            }
+            
+            // Hide all payment details for this section
+            const allDetails = document.querySelectorAll(`[id^="${section}-"][id$="-details"]`);
+            allDetails.forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // Show the selected payment details
+            const detailsElement = document.getElementById(`${section}-${method}-details`);
+            if (detailsElement) {
+                detailsElement.classList.remove('hidden');
+            }
+        }
+
+        function showPopup(type) {
+            // Set the donation type in the form
+            document.getElementById("donationType").value = type;
+            
+            // Set the amount if one was previously selected
+            const selectedAmount = localStorage.getItem('selectedAmount');
+            if (selectedAmount) {
+                document.getElementById("amount").value = selectedAmount;
+            }
+            
+            // Show the popup
+            document.getElementById("donationPopup").classList.remove("hidden");
+            document.body.style.overflow = 'hidden'; // Disable scrolling when popup is shown
+        }
+
+        function hidePopup() {
+            document.getElementById("donationPopup").classList.add("hidden");
+            document.body.style.overflow = 'auto'; // Re-enable scrolling when popup is hidden
+        }
+
+        // Close popup when clicking outside
+        document.getElementById("donationPopup").addEventListener("click", function(event) {
+            if (event.target === this) {
+                hidePopup();
+            }
+        });
+
+        function startPayment() {
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const contact = document.getElementById("contact").value;
+            const amount = document.getElementById("amount").value;
+            const donationType = document.getElementById("donationType").value;
+
+            if (!name || !email || !contact || !amount) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const options = {
+                key: "YOUR_RAZORPAY_KEY_ID", // Replace with your actual Razorpay Key ID
+                amount: amount * 100, // Amount in paise
+                currency: "INR",
+                name: "Donation Initiative",
+                description: donationType + " Donation",
+                image: "https://your-logo-url.com/logo.png", // Replace with your organization's logo
+                handler: function (response) {
+                    alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
+                    // Save the donation to the database
+                    document.getElementById("donationForm").submit();
+                },
+                prefill: {
+                    name: name,
+                    email: email,
+                    contact: contact
+                },
+                theme: {
+                    color: "#ff7000"
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

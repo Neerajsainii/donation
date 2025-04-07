@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% if user.userprofile.profile_pic %}
+                    <img src="{{ user.userprofile.profile_pic.url }}" alt="Profile Picture" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                    <img src="https://via.placeholder.com/150" alt="Profile Picture" class="img-fluid rounded-circle mb-3">
+                    {% endif %}
+                    <h5>{{ user.get_full_name }}</h5>
+                    <p class="text-muted">{{ user.email }}</p>
+                    
+                    {% if membership %}
+                    <div class="badge bg-success p-2 mb-2">{{ membership.get_membership_type_display }} Member</div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'profile' %}" class="btn btn-outline-primary">Edit Profile</a>
+                        <a href="{% url 'logout' %}" class="btn btn-outline-danger">Logout</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="list-group mb-4">
+                <a href="{% url 'dashboard' %}" class="list-group-item list-group-item-action active">Dashboard</a>
+                <a href="{% url 'donate' %}" class="list-group-item list-group-item-action">Make Donation</a>
+                <a href="{% url 'life_member' %}" class="list-group-item list-group-item-action">Life Membership</a>
+                <a href="{% url 'leaderboard' %}" class="list-group-item list-group-item-action">Leaderboard</a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">Total Donations</h6>
+                            <h2 class="card-text">₹{{ total_amount }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">Donation Count</h6>
+                            <h2 class="card-text">{{ donation_count }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <h6 class="card-title text-muted">Your Rank</h6>
+                            <h2 class="card-text">#{{ user_rank }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Donations by Category -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Donations by Category</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category, amount in category_donations.items %}
+                                <tr>
+                                    <td>{{ category }}</td>
+                                    <td class="text-end">₹{{ amount }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="2" class="text-center">No donations yet</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Donations -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Donations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for donation in user_donations %}
+                                <tr>
+                                    <td>{{ donation.date|date:"M d, Y" }}</td>
+                                    <td>₹{{ donation.amount }}</td>
+                                    <td>{% if donation.category %}{{ donation.category.name }}{% else %}General{% endif %}</td>
+                                    <td>
+                                        {% if donation.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                        {% elif donation.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ donation.status|title }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No donations yet</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
