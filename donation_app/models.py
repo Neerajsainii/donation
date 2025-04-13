@@ -23,6 +23,13 @@ class Donation(models.Model):
         ('card', 'Credit/Debit Card'),
         ('cash', 'Cash'),
     ]
+    
+    DONATION_STATUS = [
+        ('completed', 'Completed'),
+        ('pending', 'Pending Verification'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=255)
@@ -33,9 +40,13 @@ class Donation(models.Model):
     category = models.ForeignKey(DonationCategory, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
     transaction_id = models.CharField(max_length=100, null=True, blank=True)
-    status = models.CharField(max_length=20, default='completed')
+    status = models.CharField(max_length=20, choices=DONATION_STATUS, default='pending')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='razorpay')
     message = models.TextField(blank=True, null=True)
+    verified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_donations')
+    verification_date = models.DateTimeField(null=True, blank=True)
+    original_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    is_amount_modified = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} - {self.amount}"
@@ -45,20 +56,24 @@ class Donation(models.Model):
 
 class Membership(models.Model):
     MEMBERSHIP_TYPES = [
-        ('bronze', 'Bronze'),
+        ('basic', 'Basic'),
         ('silver', 'Silver'),
         ('gold', 'Gold'),
+        ('platinum', 'Platinum'),
+        ('lifetime', 'Lifetime'),
     ]
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    membership_type = models.CharField(max_length=20, choices=MEMBERSHIP_TYPES)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='membership')
+    membership_type = models.CharField(max_length=20, choices=MEMBERSHIP_TYPES, default='basic')
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
-    start_date = models.DateField(auto_now_add=True)
+    start_date = models.DateTimeField(auto_now_add=True)
+    expiry_date = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    payment_method = models.CharField(max_length=20, choices=Donation.PAYMENT_METHODS, default='razorpay')
     transaction_id = models.CharField(max_length=100, null=True, blank=True)
     
     def __str__(self):
-        return f"{self.user.username} - {self.get_membership_type_display()}"
+        return f"{self.user.username} - {self.membership_type} Membership"
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

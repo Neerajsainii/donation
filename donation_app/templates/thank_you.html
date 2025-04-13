@@ -8,22 +8,70 @@
         <div class="col-md-8 text-center">
             <div class="card shadow-sm">
                 <div class="card-body py-5">
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
                     <div class="mb-4">
                         <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
                     </div>
                     <h1 class="display-4 mb-4">Thank You!</h1>
-                    <p class="lead mb-4">Your contribution has been received successfully.</p>
+                    <p class="lead mb-4">Your donation request has been registered successfully.</p>
                     
                     <hr class="my-4">
                     
+                    {% if payment_method == 'razorpay' %}
+                    <div class="alert alert-success">
+                        <h5>Your Donation is Confirmed!</h5>
+                        <p>Your Razorpay payment has been recorded and your donation will now appear on the leaderboard.</p>
+                        <p>A confirmation email has been sent to your registered email address with the details of your donation.</p>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <h5>Important: Next Steps</h5>
+                        <p>Please complete your donation using the payment method you selected:</p>
+                        <ul class="text-start">
+                            <li>For <strong>UPI payments</strong>: Send the amount to the UPI ID provided and email a screenshot to <strong>donations@example.com</strong>.</li>
+                            <li>For <strong>Bank Transfers</strong>: Transfer the amount to the account details provided and email a confirmation to <strong>donations@example.com</strong>.</li>
+                            <li>For <strong>QR Code payments</strong>: Scan the QR code, complete the payment, and email a screenshot to <strong>donations@example.com</strong>.</li>
+                            <li>For <strong>Online payments</strong>: If you haven't completed the payment, please return to the donation page and use the payment link.</li>
+                        </ul>
+                        <p>Please include the following information in your email:</p>
+                        <ul class="text-start">
+                            <li>Your Name</li>
+                            <li>Contact Number</li>
+                            <li>Donation Type (e.g., Food for Life, Prasadam, etc.)</li>
+                            <li>Amount Donated</li>
+                        </ul>
+                        <p>Your donation will be added to the leaderboard after verification (usually within 24 hours).</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-info">
+                        <h5>What happens next?</h5>
+                        <p>Your donation has been recorded in our system. Before it appears on the leaderboard:</p>
+                        <ol class="text-start">
+                            <li>Our administrators will verify the transaction details</li>
+                            <li>Once verified, your donation will be displayed on the leaderboard</li>
+                            <li>If there are any discrepancies, we may contact you for clarification</li>
+                        </ol>
+                        <p>This verification process usually takes 24-48 hours.</p>
+                    </div>
+                    
                     <p>Your generosity helps us continue our mission and make a positive impact in the community.</p>
-                    <p>A confirmation email has been sent to your registered email address.</p>
                     
                     <div class="mt-5">
                         {% if user.is_authenticated %}
                         <a href="{% url 'dashboard' %}" class="btn btn-primary me-2">Go to Dashboard</a>
                         {% endif %}
                         <a href="{% url 'home' %}" class="btn btn-outline-secondary">Return Home</a>
+                        <a href="{% url 'leaderboard' %}" class="btn btn-outline-success">View Leaderboard</a>
                     </div>
                 </div>
             </div>

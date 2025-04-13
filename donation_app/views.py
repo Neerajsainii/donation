@@ -1,97 +1,60 @@
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.db import models
 from .models import Donation, DonationCategory, Membership, UserProfile
-from .forms import DonationForm
+from .forms import DonationForm, UserRegisterForm, UserLoginForm, ProfileUpdateForm, UserUpdateForm, MembershipForm
+from django.contrib import messages
 
 def leaderboard(request):
-    # Get ranking type from URL parameters
-    ranking_type = request.GET.get('type', 'overall')
+    """View to display the donation leaderboard."""
+    # Get filter parameter from request
+    donation_type = request.GET.get('type', None)
     
-    if ranking_type == 'overall':
-        # For overall ranking, we want to aggregate donations by user
-        donations_by_user = {}
-        all_donations = Donation.objects.all()
-        
-        for donation in all_donations:
-            # Use name as identifier if no user is associated
-            identifier = donation.user.username if donation.user else donation.name
-            if identifier in donations_by_user:
-                donations_by_user[identifier]['amount'] += donation.amount
-            else:
-                donations_by_user[identifier] = {
-                    'name': donation.user.get_full_name() if donation.user else donation.name,
-                    'amount': donation.amount
-                }
-        
-        # Convert to list and sort by amount
-        aggregated_donations = [
-            {'name': data['name'], 'amount': data['amount']} 
-            for identifier, data in donations_by_user.items()
-        ]
-        aggregated_donations.sort(key=lambda x: x['amount'], reverse=True)
-        
-        # Paginate the aggregated results
-        page_number = request.GET.get('page', 1)
-        paginator = Paginator(aggregated_donations, 10)  # Show 10 entries per page
-        page_obj = paginator.get_page(page_number)
+    # Base query - only include verified donations
+    donations = Donation.objects.filter(status='completed')
     
-    else:
-        # Filter by category for specific ranking types
-        category_mapping = {
-            'food': 'Food for Life',
-            'prasadam': 'Prasadam Donation',
-            'sudama': 'Sudama Seva',
-            'ekadashi': 'Ekadashi Donation',
-            'shravan': 'Shravan Kumar Seva',
-            'gita': 'Bhagavad Gita'
-        }
-        
-        category_name = category_mapping.get(ranking_type)
-        if category_name:
-            try:
-                category = DonationCategory.objects.get(name=category_name)
-                # Aggregate donations by user for this category
-                donations_by_user = {}
-                category_donations = Donation.objects.filter(category=category)
-                
-                for donation in category_donations:
-                    identifier = donation.user.username if donation.user else donation.name
-                    if identifier in donations_by_user:
-                        donations_by_user[identifier]['amount'] += donation.amount
-                    else:
-                        donations_by_user[identifier] = {
-                            'name': donation.user.get_full_name() if donation.user else donation.name,
-                            'amount': donation.amount
-                        }
-                
-                # Convert to list and sort by amount
-                aggregated_donations = [
-                    {'name': data['name'], 'amount': data['amount']} 
-                    for identifier, data in donations_by_user.items()
-                ]
-                aggregated_donations.sort(key=lambda x: x['amount'], reverse=True)
-                
-                # Paginate the aggregated results
-                page_number = request.GET.get('page', 1)
-                paginator = Paginator(aggregated_donations, 10)  # Show 10 entries per page
-                page_obj = paginator.get_page(page_number)
-            except DonationCategory.DoesNotExist:
-                # Fallback to overall if category doesn't exist
-                return redirect('leaderboard')
+    # Apply filter if provided
+    if donation_type:
+        donations = donations.filter(category__name=donation_type)
+    
+    # Group donations by user and sum the amounts
+    user_donations = {}
+    
+    for donation in donations:
+        key = donation.user.username if donation.user else donation.name
+        if key in user_donations:
+            user_donations[key] += donation.amount
         else:
-            # Fallback to overall if invalid ranking type
-            return redirect('leaderboard')
-
-    return render(request, 'leaderboard.html', {
-        'page_obj': page_obj,
-        'ranking_type': ranking_type
-    })
+            user_donations[key] = donation.amount
+    
+    # Sort by amount (descending)
+    sorted_donations = sorted(user_donations.items(), key=lambda x: x[1], reverse=True)
+    
+    # Prepare data for template with ranks
+    ranked_donations = []
+    for i, (name, amount) in enumerate(sorted_donations, 1):
+        ranked_donations.append({
+            'rank': i,
+            'name': name,
+            'amount': amount
+        })
+    
+    # Get categories for filter dropdown
+    categories = DonationCategory.objects.all()
+    
+    context = {
+        'donations': ranked_donations,
+        'categories': categories,
+        'current_filter': donation_type
+    }
+    
+    return render(request, 'leaderboard.html', context)
 
 
 def donate(request):
@@ -111,13 +74,37 @@ def donate(request):
                     category = DonationCategory.objects.get(name=donation_type)
                     donation.category = category
                 except DonationCategory.DoesNotExist:
-                    pass
+                    # Create the category if it doesn't exist
+                    category = DonationCategory.objects.create(
+                        name=donation_type,
+                        description=f"Donations for {donation_type}"
+                    )
+                    donation.category = category
             
+            # Set payment method
+            payment_method = request.POST.get('payment_method', 'razorpay')
+            donation.payment_method = payment_method
+            
+            # Mark all donations as pending for admin verification
+            donation.status = 'pending'
+            messages.success(
+                request, 
+                "Thank you for your donation! Your contribution has been received and will be verified by our administrators."
+            )
+            
+            # Save transaction ID if present
+            transaction_id = request.POST.get('transaction_id')
+            if transaction_id:
+                donation.transaction_id = transaction_id
+                
             donation.save()
             
             # For AJAX requests, return a JSON response
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'status': 'success', 'message': 'Donation received successfully'})
+            
+            # Store payment method in session for thank you page
+            request.session['payment_method'] = payment_method
             
             return redirect('thank_you')  # Redirect to thank you page after donation
     else:
@@ -142,7 +129,16 @@ def donate(request):
 
 def thank_you(request):
     """View to show a thank you page after successful donation."""
-    return render(request, 'thank_you.html')
+    # Create context with payment method if available
+    context = {}
+    
+    # Get payment method from session if set
+    if 'payment_method' in request.session:
+        context['payment_method'] = request.session['payment_method']
+        # Clear session data after using it
+        del request.session['payment_method']
+    
+    return render(request, 'thank_you.html', context)
 
 
 def login_view(request):
@@ -349,4 +345,81 @@ def process_membership(request):
         return redirect('thank_you')
     
     return redirect('life_member')
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_dashboard(request):
+    # Get total donations and amount
+    total_donations = Donation.objects.filter(status='completed').count()
+    total_amount = Donation.objects.filter(status='completed').aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Get pending verifications
+    pending_verifications = Donation.objects.filter(status='pending').count()
+    
+    # Get user statistics
+    users_count = User.objects.count()
+    active_users = User.objects.filter(is_active=True).count()
+    lifetime_members = Membership.objects.filter(membership_type='lifetime', is_active=True).count()
+    
+    # Get recent donations
+    recent_donations = Donation.objects.select_related('category').order_by('-date')[:10]
+    
+    # Get life members
+    life_members = Membership.objects.select_related('user', 'user__userprofile').filter(
+        membership_type='lifetime', 
+        is_active=True
+    ).order_by('-start_date')[:10]
+    
+    # Get top donors
+    top_donors = User.objects.annotate(
+        total_donated=Sum('donation__amount', filter=Q(donation__status='completed'))
+    ).exclude(total_donated=None).order_by('-total_donated')[:10]
+    
+    # Get recent users
+    recent_users = User.objects.select_related('userprofile').order_by('-date_joined')[:10]
+    
+    context = {
+        'total_donations': total_donations,
+        'total_amount': total_amount,
+        'pending_verifications': pending_verifications,
+        'users_count': users_count,
+        'active_users': active_users,
+        'lifetime_members': lifetime_members,
+        'recent_donations': recent_donations,
+        'life_members': life_members,
+        'top_donors': top_donors,
+        'recent_users': recent_users,
+    }
+    
+    return render(request, 'admin_dashboard.html', context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def verify_donation(request, donation_id):
+    donation = get_object_or_404(Donation, id=donation_id)
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'verify':
+            # Update amount if changed
+            new_amount = request.POST.get('amount')
+            if new_amount and float(new_amount) != donation.amount:
+                donation.amount = float(new_amount)
+            
+            # Mark as completed
+            donation.status = 'completed'
+            donation.save()
+            
+            messages.success(request, 'Donation verified successfully!')
+            return redirect('admin_dashboard')
+            
+        elif action == 'delete':
+            donation.delete()
+            messages.success(request, 'Donation deleted successfully!')
+            return redirect('admin_dashboard')
+    
+    return redirect('admin_dashboard')
 

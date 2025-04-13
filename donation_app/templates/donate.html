@@ -70,11 +70,12 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 10px 15px;
-            cursor: pointer;
+            cursor: default;
             transition: all 0.3s ease;
+            user-select: none;
         }
         
-        .amount-option:hover, .amount-option.selected {
+        .amount-option:hover {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
             color: white;
@@ -164,7 +165,7 @@
         .tab-content.active {
             display: block;
         }
-        
+
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -178,7 +179,7 @@
             align-items: center;
             z-index: 1000;
         }
-        
+
         .popup {
             background: white;
             padding: 30px;
@@ -303,16 +304,16 @@
                 </div>
                 <div class="col-md-7">
                     <h2>Food For Life</h2>
-                    <p>Through the FOOD FOR LIFE program, we have offered hungry people nutritious, filling food. We have been able to feed more than 5 crore people. With each contribution you make, we will be able to feed 50 people. We urge you to donate for this blessed cause.</p>
+                    <p>Spread the love by making your contribution. Donate for a good cause and let Lord Krishna shower his blessings on you.</p>
                     
                     <div class="amount-selector">
                         <label>Amount</label>
-                        <div class="amount-options" data-donation-type="food">
-                            <div class="amount-option" data-amount="1000">₹1000 (Donate 50 Meals)</div>
-                            <div class="amount-option" data-amount="2000">₹2000 (Donate 100 Meals)</div>
-                            <div class="amount-option" data-amount="5000">₹5000 (Donate 250 Meals)</div>
-                            <div class="amount-option" data-amount="10000">₹10000 (Donate 500 Meals)</div>
-                            <div class="amount-option" data-amount="20000">₹20000 (Donate 1000 Meals)</div>
+                        <div class="amount-options" data-donation-type="Food for Life">
+                            <div class="amount-option" data-amount="1250">₹1250 (For 50 People)</div>
+                            <div class="amount-option" data-amount="2500">₹2500 (For 100 People)</div>
+                            <div class="amount-option" data-amount="6250">₹6250 (For 250 People)</div>
+                            <div class="amount-option" data-amount="12500">₹12500 (For 500 People)</div>
+                            <div class="amount-option" data-amount="25000">₹25000 (For 1000 People)</div>
                         </div>
                     </div>
                     
@@ -336,6 +337,9 @@
                         <div id="food-upi-details" class="payment-details hidden">
                             <h4>Pay by UPI</h4>
                             <p><strong>UPI Address:</strong> 8527405353@hdfcbank</p>
+                            <div class="alert alert-warning mt-2">
+                                <strong>Note:</strong> After payment, please email a screenshot to <strong>donations@example.com</strong> with your name and mention "Food for Life Donation" so we can update the leaderboard.
+                            </div>
                         </div>
                         
                         <div id="food-bank-details" class="payment-details hidden">
@@ -344,15 +348,55 @@
                             <strong>Account Number:</strong> 1234567890<br>
                             <strong>IFSC Code:</strong> HDFC0001234<br>
                             <strong>Bank:</strong> HDFC Bank</p>
+                            <div class="alert alert-warning mt-2">
+                                <strong>Note:</strong> After payment, please email a screenshot to <strong>donations@example.com</strong> with your name and mention "Food for Life Donation" so we can update the leaderboard.
+                            </div>
                         </div>
                         
                         <div id="food-qr-details" class="payment-details hidden">
                             <h4>Scan QR Code</h4>
                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8527405353@hdfcbank" alt="QR Code" class="qr-code">
+                            <div class="alert alert-warning mt-2">
+                                <strong>Note:</strong> After payment, please email a screenshot to <strong>donations@example.com</strong> with your name and mention "Food for Life Donation" so we can update the leaderboard.
+                            </div>
                         </div>
                         
                         <div id="food-online-details" class="payment-details hidden">
-                            <button class="donate-button" onclick="showPopup('Food For Life')">Donate Now</button>
+                            <a href="https://razorpay.me/@foodforlife6842" class="btn btn-primary" target="_blank">Donate Now for Food for Life</a>
+                            <div class="mt-3">
+                                <form method="post" action="{% url 'donate' %}" id="foodforlife-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="name" value="{{ user.get_full_name|default:'Guest' }}">
+                                    <input type="hidden" name="email" value="{{ user.email|default:'' }}">
+                                    <input type="hidden" name="contact" value="{{ user.userprofile.contact|default:'' }}">
+                                    <input type="hidden" name="donationType" value="Food for Life">
+                                    <input type="hidden" name="frequency" value="one-time">
+                                    <input type="hidden" name="payment_method" value="razorpay">
+                                    
+                                    <div class="mb-3">
+                                        <label for="foodforlife-amount" class="form-label">Amount (INR):</label>
+                                        <input type="text" class="form-control" name="amount" id="foodforlife-amount">
+                                        <small class="text-muted">Enter the exact amount you paid via Razorpay</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="foodforlife-transaction-id" class="form-label">Razorpay Transaction ID:</label>
+                                        <input type="text" class="form-control" name="transaction_id" id="foodforlife-transaction-id" placeholder="Enter transaction ID after payment" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">Submit Payment Details</button>
+                                </form>
+                                <div class="alert alert-info mt-2">
+                                    <strong>Instructions:</strong>
+                                    <ol class="mb-0">
+                                        <li>Click the "Donate Now" button to make payment through Razorpay</li>
+                                        <li>After successful payment, enter the exact amount you paid</li>
+                                        <li>Enter the Razorpay Transaction ID from your receipt</li>
+                                        <li>Submit the form to record your donation</li>
+                                    </ol>
+                                    <p class="mt-2 mb-0"><small>Note: All donations are subject to verification by administrators</small></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -371,7 +415,7 @@
                     
                     <div class="amount-selector">
                         <label>Amount</label>
-                        <div class="amount-options" data-donation-type="prasadam">
+                        <div class="amount-options" data-donation-type="Prasadam Donation">
                             <div class="amount-option" data-amount="1250">₹1250 (For 50 People)</div>
                             <div class="amount-option" data-amount="2500">₹2500 (For 100 People)</div>
                             <div class="amount-option" data-amount="6250">₹6250 (For 250 People)</div>
@@ -400,6 +444,9 @@
                         <div id="prasadam-upi-details" class="payment-details hidden">
                             <h4>Pay by UPI</h4>
                             <p><strong>UPI Address:</strong> 8527405353@hdfcbank</p>
+                            <div class="alert alert-warning mt-2">
+                                <strong>Note:</strong> After payment, please email a screenshot to <strong>donations@example.com</strong> with your name and mention "Prasadam Donation" so we can update the leaderboard.
+                            </div>
                         </div>
                         
                         <div id="prasadam-bank-details" class="payment-details hidden">
@@ -408,15 +455,55 @@
                             <strong>Account Number:</strong> 1234567890<br>
                             <strong>IFSC Code:</strong> HDFC0001234<br>
                             <strong>Bank:</strong> HDFC Bank</p>
+                            <div class="alert alert-warning mt-2">
+                                <strong>Note:</strong> After payment, please email a screenshot to <strong>donations@example.com</strong> with your name and mention "Prasadam Donation" so we can update the leaderboard.
+                            </div>
                         </div>
                         
                         <div id="prasadam-qr-details" class="payment-details hidden">
                             <h4>Scan QR Code</h4>
                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8527405353@hdfcbank" alt="QR Code" class="qr-code">
+                            <div class="alert alert-warning mt-2">
+                                <strong>Note:</strong> After payment, please email a screenshot to <strong>donations@example.com</strong> with your name and mention "Prasadam Donation" so we can update the leaderboard.
+                            </div>
                         </div>
                         
                         <div id="prasadam-online-details" class="payment-details hidden">
-                            <button class="donate-button" onclick="showPopup('Prasadam Donation')">Donate Now</button>
+                            <a href="https://razorpay.me/@foodforlife6842" class="btn btn-primary" target="_blank">Donate Now for Prasadam</a>
+                            <div class="mt-3">
+                                <form method="post" action="{% url 'donate' %}" id="prasadam-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="name" value="{{ user.get_full_name|default:'Guest' }}">
+                                    <input type="hidden" name="email" value="{{ user.email|default:'' }}">
+                                    <input type="hidden" name="contact" value="{{ user.userprofile.contact|default:'' }}">
+                                    <input type="hidden" name="donationType" value="Prasadam Donation">
+                                    <input type="hidden" name="frequency" value="one-time">
+                                    <input type="hidden" name="payment_method" value="razorpay">
+                                    
+                                    <div class="mb-3">
+                                        <label for="prasadam-amount" class="form-label">Amount (INR):</label>
+                                        <input type="text" class="form-control" name="amount" id="prasadam-amount">
+                                        <small class="text-muted">Enter the exact amount you paid via Razorpay</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="prasadam-transaction-id" class="form-label">Razorpay Transaction ID:</label>
+                                        <input type="text" class="form-control" name="transaction_id" id="prasadam-transaction-id" placeholder="Enter transaction ID after payment" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">Submit Payment Details</button>
+                                </form>
+                                <div class="alert alert-info mt-2">
+                                    <strong>Instructions:</strong>
+                                    <ol class="mb-0">
+                                        <li>Click the "Donate Now" button to make payment through Razorpay</li>
+                                        <li>After successful payment, enter the exact amount you paid</li>
+                                        <li>Enter the Razorpay Transaction ID from your receipt</li>
+                                        <li>Submit the form to record your donation</li>
+                                    </ol>
+                                    <p class="mt-2 mb-0"><small>Note: All donations are subject to verification by administrators</small></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -431,19 +518,20 @@
                 </div>
                 <div class="col-md-7">
                     <h2>Sudama Seva</h2>
-                    <p>Become a Sudama Sevak by donating 1-square foot with Rs 6000 and have your name displayed on the floor or wall surface. You can give it either as a one-time payment or through monthly installments.</p>
+                    <p>Spreading love through our Temple Construction program. Your donation will help build and maintain sacred spaces for spiritual practice and community service.</p>
                     
                     <div class="amount-selector">
                         <label>Amount</label>
-                        <div class="amount-options" data-donation-type="sudama">
-                            <div class="amount-option" data-amount="6000">₹6000 (1 Square Foot)</div>
-                            <div class="amount-option" data-amount="12000">₹12000 (2 Square Feet)</div>
-                            <div class="amount-option" data-amount="30000">₹30000 (5 Square Feet)</div>
-                            <div class="amount-option" data-amount="60000">₹60000 (10 Square Feet)</div>
-                            <div class="amount-option" data-amount="120000">₹120000 (20 Square Feet)</div>
+                        <div class="amount-options" data-donation-type="Sudama Seva">
+                            <div class="amount-option" data-amount="2500">₹2500</div>
+                            <div class="amount-option" data-amount="5000">₹5000</div>
+                            <div class="amount-option" data-amount="10000">₹10000</div>
+                            <div class="amount-option" data-amount="21000">₹21000</div>
+                            <div class="amount-option" data-amount="51000">₹51000</div>
                         </div>
                     </div>
                     
+                    <!-- Payment options for Sudama Seva -->
                     <div class="payment-options">
                         <label>Payment Method</label>
                         <div class="payment-methods" data-section="sudama">
@@ -461,9 +549,13 @@
                             </div>
                         </div>
                         
+                        <!-- Payment details for Sudama Seva -->
                         <div id="sudama-upi-details" class="payment-details hidden">
                             <h4>Pay by UPI</h4>
                             <p><strong>UPI Address:</strong> 8527405353@hdfcbank</p>
+                            <div class="alert alert-warning mt-2">
+                                <strong>Note:</strong> After payment, please email a screenshot to <strong>donations@example.com</strong> with your name and mention "Sudama Seva Donation" so we can update the leaderboard.
+                            </div>
                         </div>
                         
                         <div id="sudama-bank-details" class="payment-details hidden">
@@ -472,15 +564,55 @@
                             <strong>Account Number:</strong> 1234567890<br>
                             <strong>IFSC Code:</strong> HDFC0001234<br>
                             <strong>Bank:</strong> HDFC Bank</p>
+                            <div class="alert alert-warning mt-2">
+                                <strong>Note:</strong> After payment, please email a screenshot to <strong>donations@example.com</strong> with your name and mention "Sudama Seva Donation" so we can update the leaderboard.
+                            </div>
                         </div>
                         
                         <div id="sudama-qr-details" class="payment-details hidden">
                             <h4>Scan QR Code</h4>
                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8527405353@hdfcbank" alt="QR Code" class="qr-code">
+                            <div class="alert alert-warning mt-2">
+                                <strong>Note:</strong> After payment, please email a screenshot to <strong>donations@example.com</strong> with your name and mention "Sudama Seva Donation" so we can update the leaderboard.
+                            </div>
                         </div>
                         
                         <div id="sudama-online-details" class="payment-details hidden">
-                            <button class="donate-button" onclick="showPopup('Sudama Seva')">Donate Now</button>
+                            <a href="https://razorpay.me/@foodforlife6842" class="btn btn-primary" target="_blank">Donate Now for Sudama Seva</a>
+                            <div class="mt-3">
+                                <form method="post" action="{% url 'donate' %}" id="sudama-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="name" value="{{ user.get_full_name|default:'Guest' }}">
+                                    <input type="hidden" name="email" value="{{ user.email|default:'' }}">
+                                    <input type="hidden" name="contact" value="{{ user.userprofile.contact|default:'' }}">
+                                    <input type="hidden" name="donationType" value="Sudama Seva">
+                                    <input type="hidden" name="frequency" value="one-time">
+                                    <input type="hidden" name="payment_method" value="razorpay">
+                                    
+                                    <div class="mb-3">
+                                        <label for="sudama-amount" class="form-label">Amount (INR):</label>
+                                        <input type="text" class="form-control" name="amount" id="sudama-amount">
+                                        <small class="text-muted">Enter the exact amount you paid via Razorpay</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="sudama-transaction-id" class="form-label">Razorpay Transaction ID:</label>
+                                        <input type="text" class="form-control" name="transaction_id" id="sudama-transaction-id" placeholder="Enter transaction ID after payment" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">Submit Payment Details</button>
+                                </form>
+                                <div class="alert alert-info mt-2">
+                                    <strong>Instructions:</strong>
+                                    <ol class="mb-0">
+                                        <li>Click the "Donate Now" button to make payment through Razorpay</li>
+                                        <li>After successful payment, enter the exact amount you paid</li>
+                                        <li>Enter the Razorpay Transaction ID from your receipt</li>
+                                        <li>Submit the form to record your donation</li>
+                                    </ol>
+                                    <p class="mt-2 mb-0"><small>Note: All donations are subject to verification by administrators</small></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -544,7 +676,41 @@
                         </div>
                         
                         <div id="ekadashi-online-details" class="payment-details hidden">
-                            <button class="donate-button" onclick="showPopup('Ekadashi Donation')">Donate Now</button>
+                            <a href="https://razorpay.me/@foodforlife6842" class="btn btn-primary" target="_blank">Donate Now for Ekadashi</a>
+                            <div class="mt-3">
+                                <form method="post" action="{% url 'donate' %}" id="ekadashi-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="name" value="{{ user.get_full_name|default:'Guest' }}">
+                                    <input type="hidden" name="email" value="{{ user.email|default:'' }}">
+                                    <input type="hidden" name="contact" value="{{ user.userprofile.contact|default:'' }}">
+                                    <input type="hidden" name="donationType" value="Ekadashi Donation">
+                                    <input type="hidden" name="frequency" value="one-time">
+                                    <input type="hidden" name="payment_method" value="razorpay">
+                                    
+                                    <div class="mb-3">
+                                        <label for="ekadashi-amount" class="form-label">Amount (INR):</label>
+                                        <input type="text" class="form-control" name="amount" id="ekadashi-amount">
+                                        <small class="text-muted">Enter the exact amount you paid via Razorpay</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="ekadashi-transaction-id" class="form-label">Razorpay Transaction ID:</label>
+                                        <input type="text" class="form-control" name="transaction_id" id="ekadashi-transaction-id" placeholder="Enter transaction ID after payment" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">Submit Payment Details</button>
+                                </form>
+                                <div class="alert alert-info mt-2">
+                                    <strong>Instructions:</strong>
+                                    <ol class="mb-0">
+                                        <li>Click the "Donate Now" button to make payment through Razorpay</li>
+                                        <li>After successful payment, enter the exact amount you paid</li>
+                                        <li>Enter the Razorpay Transaction ID from your receipt</li>
+                                        <li>Submit the form to record your donation</li>
+                                    </ol>
+                                    <p class="mt-2 mb-0"><small>Note: All donations are subject to verification by administrators</small></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -608,7 +774,41 @@
                         </div>
                         
                         <div id="shravan-online-details" class="payment-details hidden">
-                            <button class="donate-button" onclick="showPopup('Shravan Kumar Seva')">Donate Now</button>
+                            <a href="https://razorpay.me/@foodforlife6842" class="btn btn-primary" target="_blank">Donate Now for Shravan Kumar Seva</a>
+                            <div class="mt-3">
+                                <form method="post" action="{% url 'donate' %}" id="shravan-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="name" value="{{ user.get_full_name|default:'Guest' }}">
+                                    <input type="hidden" name="email" value="{{ user.email|default:'' }}">
+                                    <input type="hidden" name="contact" value="{{ user.userprofile.contact|default:'' }}">
+                                    <input type="hidden" name="donationType" value="Shravan Kumar Seva">
+                                    <input type="hidden" name="frequency" value="one-time">
+                                    <input type="hidden" name="payment_method" value="razorpay">
+                                    
+                                    <div class="mb-3">
+                                        <label for="shravan-amount" class="form-label">Amount (INR):</label>
+                                        <input type="text" class="form-control" name="amount" id="shravan-amount">
+                                        <small class="text-muted">Enter the exact amount you paid via Razorpay</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="shravan-transaction-id" class="form-label">Razorpay Transaction ID:</label>
+                                        <input type="text" class="form-control" name="transaction_id" id="shravan-transaction-id" placeholder="Enter transaction ID after payment" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">Submit Payment Details</button>
+                                </form>
+                                <div class="alert alert-info mt-2">
+                                    <strong>Instructions:</strong>
+                                    <ol class="mb-0">
+                                        <li>Click the "Donate Now" button to make payment through Razorpay</li>
+                                        <li>After successful payment, enter the exact amount you paid</li>
+                                        <li>Enter the Razorpay Transaction ID from your receipt</li>
+                                        <li>Submit the form to record your donation</li>
+                                    </ol>
+                                    <p class="mt-2 mb-0"><small>Note: All donations are subject to verification by administrators</small></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -683,7 +883,7 @@
     <div id="donationPopup" class="popup-overlay hidden" onclick="hidePopup(event)">
         <div class="popup" onclick="event.stopPropagation()">
             <h2 class="text-center mb-4">Make a Donation</h2>
-            <form id="donationForm" class="bg-white">
+            <form id="donationForm" class="bg-white" method="post" action="{% url 'donate' %}">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="name" class="form-label">Name:</label>
@@ -704,13 +904,18 @@
                     <label for="amount" class="form-label">Amount (INR):</label>
                     <input type="number" id="amount" name="amount" class="form-control" required>
                 </div>
-
+                
                 <input type="hidden" id="donationType" name="donationType">
                 <input type="hidden" id="frequency" name="frequency" value="one-time">
+                <input type="hidden" id="payment_method" name="payment_method" value="razorpay">
 
                 <div class="d-flex justify-content-between">
-                    <button type="button" class="btn btn-secondary" onclick="hidePopup()">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="startPayment()">Proceed to Pay</button>
+                    <button type="button" class="btn btn-secondary" onclick="hidePopup(event)">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Donation Details</button>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <strong>Note:</strong> This form is only for recording your donation. You will be redirected to make the actual payment after submitting this form.
                 </div>
             </form>
         </div>
@@ -755,119 +960,79 @@
     </footer>
 
     <script>
-        // Amount selection functionality
-        document.querySelectorAll('.amount-option').forEach(option => {
-            option.addEventListener('click', function() {
-                // Remove selected class from siblings
-                const parent = this.parentElement;
-                parent.querySelectorAll('.amount-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                });
-                
-                // Add selected class to clicked option
-                this.classList.add('selected');
-                
-                // Store the selected amount for later use
-                const amount = this.getAttribute('data-amount');
-                const donationType = parent.getAttribute('data-donation-type');
-                
-                // You can store these values in localStorage or directly set them when showing the popup
-                localStorage.setItem('selectedAmount', amount);
-                localStorage.setItem('selectedDonationType', donationType);
-            });
+        // Select donation amount - just display, no selection needed
+        document.querySelectorAll('.amount-option').forEach(item => {
+            // Make non-interactive (removed click event listeners)
         });
-
-        // Function to toggle payment methods
+        
+        // Toggle payment method details
         function togglePaymentMethod(section, method) {
-            // Remove selected class from all payment methods in the section
-            const methodElements = document.querySelectorAll(`.payment-methods[data-section="${section}"] .payment-method`);
-            methodElements.forEach(el => {
-                el.classList.remove('selected');
-            });
-            
-            // Add selected class to the clicked method
-            const selectedMethod = document.querySelector(`.payment-methods[data-section="${section}"] .payment-method[data-method="${method}"]`);
-            if (selectedMethod) {
-                selectedMethod.classList.add('selected');
-            }
-            
             // Hide all payment details for this section
-            const allDetails = document.querySelectorAll(`[id^="${section}-"][id$="-details"]`);
-            allDetails.forEach(el => {
-                el.classList.add('hidden');
+            document.querySelectorAll(`[id^="${section}-"][id$="-details"]`).forEach(item => {
+                item.classList.add('hidden');
             });
             
-            // Show the selected payment details
-            const detailsElement = document.getElementById(`${section}-${method}-details`);
-            if (detailsElement) {
-                detailsElement.classList.remove('hidden');
+            // Deselect all payment methods
+            document.querySelectorAll(`.payment-methods[data-section="${section}"] .payment-method`).forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Show selected payment details
+            document.getElementById(`${section}-${method}-details`).classList.remove('hidden');
+            
+            // Select this payment method
+            document.querySelector(`.payment-methods[data-section="${section}"] .payment-method[data-method="${method}"]`).classList.add('selected');
+        }
+        
+        // Helper function to map section name to donation type
+        function getDonationTypeFromSection(section) {
+            switch(section) {
+                case 'food': return 'Food for Life';
+                case 'prasadam': return 'Prasadam Donation';
+                case 'sudama': return 'Sudama Seva';
+                case 'shravan': return 'shravan';
+                case 'ekadashi': return 'ekadashi';
+                case 'gita': return 'gita';
+                default: return section;
             }
         }
-
-        function showPopup(type) {
-            // Set the donation type in the form
-            document.getElementById("donationType").value = type;
-            
-            // Set the amount if one was previously selected
-            const selectedAmount = localStorage.getItem('selectedAmount');
-            if (selectedAmount) {
-                document.getElementById("amount").value = selectedAmount;
-            }
-            
-            // Show the popup
+        
+        // Show donation popup
+        function showPopup(donationType) {
             document.getElementById("donationPopup").classList.remove("hidden");
-            document.body.style.overflow = 'hidden'; // Disable scrolling when popup is shown
+            document.getElementById("donationType").value = donationType;
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
         }
-
-        function hidePopup() {
+        
+        function hidePopup(event) {
+            if (event) event.preventDefault();
             document.getElementById("donationPopup").classList.add("hidden");
             document.body.style.overflow = 'auto'; // Re-enable scrolling when popup is hidden
         }
-
-        // Close popup when clicking outside
-        document.getElementById("donationPopup").addEventListener("click", function(event) {
-            if (event.target === this) {
-                hidePopup();
+        
+        // Form validation - simple version for all forms
+        const forms = ['foodforlife-form', 'prasadam-form', 'sudama-form', 'shravan-form', 'ekadashi-form'];
+        
+        forms.forEach(formId => {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const amountField = form.querySelector('input[name="amount"]');
+                    const transactionField = form.querySelector('input[name="transaction_id"]');
+                    
+                    if (!amountField || !amountField.value.trim()) {
+                        e.preventDefault();
+                        alert('Please enter the donation amount');
+                    } else if (isNaN(amountField.value.trim()) || parseFloat(amountField.value.trim()) <= 0) {
+                        e.preventDefault();
+                        alert('Please enter a valid donation amount');
+                    } else if (!transactionField || !transactionField.value.trim()) {
+                        e.preventDefault();
+                        alert('Please enter the Razorpay transaction ID');
+                    }
+                });
             }
         });
-
-        function startPayment() {
-            const name = document.getElementById("name").value;
-            const email = document.getElementById("email").value;
-            const contact = document.getElementById("contact").value;
-            const amount = document.getElementById("amount").value;
-            const donationType = document.getElementById("donationType").value;
-
-            if (!name || !email || !contact || !amount) {
-                alert("Please fill in all fields.");
-                return;
-            }
-
-            const options = {
-                key: "YOUR_RAZORPAY_KEY_ID", // Replace with your actual Razorpay Key ID
-                amount: amount * 100, // Amount in paise
-                currency: "INR",
-                name: "Donation Initiative",
-                description: donationType + " Donation",
-                image: "https://your-logo-url.com/logo.png", // Replace with your organization's logo
-                handler: function (response) {
-                    alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
-                    // Save the donation to the database
-                    document.getElementById("donationForm").submit();
-                },
-                prefill: {
-                    name: name,
-                    email: email,
-                    contact: contact
-                },
-                theme: {
-                    color: "#ff7000"
-                }
-            };
-
-            const rzp = new Razorpay(options);
-            rzp.open();
-        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

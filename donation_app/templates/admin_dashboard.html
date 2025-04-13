@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Admin Dashboard</h1>
+    
+    <div class="row mb-4">
+        <!-- Statistics Cards -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Donations</h5>
+                    <h2 class="card-text">{{ total_donations }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Total Amount</h5>
+                    <h2 class="card-text">₹{{ total_amount|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Verification</h5>
+                    <h2 class="card-text">{{ pending_verifications }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Life Members</h5>
+                    <h2 class="card-text">{{ lifetime_members }}</h2>
+                    <small>Active Users: {{ active_users }} | Total Users: {{ users_count }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Recent Donations -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Donations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Category</th>
+                                    <th>Payment Method</th>
+                                    <th>Transaction ID</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for donation in recent_donations %}
+                                <tr>
+                                    <td>{{ donation.name }}</td>
+                                    <td>₹{{ donation.amount }}</td>
+                                    <td>{{ donation.category.name|default:"N/A" }}</td>
+                                    <td>{{ donation.payment_method|title }}</td>
+                                    <td>{{ donation.transaction_id|default:"-" }}</td>
+                                    <td>
+                                        {% if donation.status == 'completed' %}
+                                        <span class="badge bg-success">Verified</span>
+                                        {% elif donation.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ donation.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ donation.date|date:"d M Y" }}</td>
+                                    <td>
+                                        {% if donation.status == 'pending' %}
+                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#verifyModal{{ donation.id }}">
+                                            Check
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <!-- Verification Modal -->
+                                <div class="modal fade" id="verifyModal{{ donation.id }}" tabindex="-1" aria-labelledby="verifyModalLabel{{ donation.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="verifyModalLabel{{ donation.id }}">Verify Donation</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="post" action="{% url 'verify_donation' donation.id %}">
+                                                    {% csrf_token %}
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Donor Name</label>
+                                                        <input type="text" class="form-control" value="{{ donation.name }}" readonly>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Amount</label>
+                                                        <input type="number" class="form-control" name="amount" value="{{ donation.amount }}" step="0.01">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Category</label>
+                                                        <input type="text" class="form-control" value="{{ donation.category.name|default:'N/A' }}" readonly>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Payment Method</label>
+                                                        <input type="text" class="form-control" value="{{ donation.payment_method|title }}" readonly>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Transaction ID</label>
+                                                        <input type="text" class="form-control" value="{{ donation.transaction_id|default:'-' }}" readonly>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Date</label>
+                                                        <input type="text" class="form-control" value="{{ donation.date|date:'d M Y' }}" readonly>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between">
+                                                        <button type="submit" name="action" value="verify" class="btn btn-success">Verify</button>
+                                                        <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center">No recent donations</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Life Members -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Life Members</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in life_members %}
+                                <tr>
+                                    <td>{{ member.user.get_full_name|default:member.user.username }}</td>
+                                    <td>{{ member.user.email }}</td>
+                                    <td>{{ member.user.userprofile.contact|default:"-" }}</td>
+                                    <td>{{ member.start_date|date:"d M Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No life members found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Donors -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Top Donors</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Total Donated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for donor in top_donors %}
+                                <tr>
+                                    <td>{{ donor.get_full_name|default:donor.username }}</td>
+                                    <td>{{ donor.email }}</td>
+                                    <td>{{ donor.userprofile.contact|default:"-" }}</td>
+                                    <td>₹{{ donor.total_donated|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No donors found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
