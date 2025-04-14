@@ -76,10 +76,16 @@ WSGI_APPLICATION = 'donation_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# Print all environment variables for debugging (except secrets)
+print("Environment variables:", file=sys.stderr)
+for key in os.environ:
+    if 'SECRET' not in key.upper() and 'PASSWORD' not in key.upper() and 'KEY' not in key.upper():
+        print(f"{key}: {os.environ[key]}", file=sys.stderr)
+
 # Check for DATABASE_URL environment variable first for production
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
-    print("Using PostgreSQL database from DATABASE_URL", file=sys.stderr)
+    print(f"Using PostgreSQL database from DATABASE_URL: {DATABASE_URL[:20]}...", file=sys.stderr)
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
@@ -88,14 +94,34 @@ if DATABASE_URL:
         )
     }
 else:
-    # Fallback to SQLite for development
-    print("DATABASE_URL not found, using SQLite database", file=sys.stderr)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+    # Check for other database environment variables (Render specific)
+    PGHOST = os.environ.get('PGHOST')
+    PGPORT = os.environ.get('PGPORT')
+    PGUSER = os.environ.get('PGUSER')
+    PGDATABASE = os.environ.get('PGDATABASE')
+    PGPASSWORD = os.environ.get('PGPASSWORD')
+    
+    if PGHOST and PGPORT and PGUSER and PGPASSWORD and PGDATABASE:
+        print("Using PostgreSQL database from individual environment variables", file=sys.stderr)
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': PGDATABASE,
+                'USER': PGUSER,
+                'PASSWORD': PGPASSWORD,
+                'HOST': PGHOST,
+                'PORT': PGPORT,
+            }
         }
-    }
+    else:
+        # Fallback to SQLite for development
+        print("No database configuration found, using SQLite database", file=sys.stderr)
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
