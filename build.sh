@@ -8,9 +8,14 @@ pip install -r requirements.txt
 # Collect static files
 python manage.py collectstatic --no-input
 
-# Apply migrations - Force recreation if tables are missing
-python manage.py makemigrations donation_app --no-input
-python manage.py migrate --no-input
+# Reset migrations completely if needed
+rm -rf donation_app/migrations
+mkdir -p donation_app/migrations
+touch donation_app/migrations/__init__.py
+
+# Create fresh migrations
+python manage.py makemigrations donation_app
+python manage.py migrate
 
 # Create default categories
 python manage.py create_default_categories 

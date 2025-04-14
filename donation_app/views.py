@@ -110,12 +110,16 @@ def donate(request):
     else:
         form = DonationForm()
     
-    # Get statistics for the donation page
-    total_donations = Donation.objects.count()
-    total_amount = Donation.objects.all().aggregate(total=models.Sum('amount'))['total'] or 0
-    
-    # Get donation categories
-    categories = DonationCategory.objects.all()
+    # Get statistics for the donation page - Handle with try/except for initial setup
+    try:
+        total_donations = Donation.objects.count()
+        total_amount = Donation.objects.all().aggregate(total=models.Sum('amount'))['total'] or 0
+        categories = DonationCategory.objects.all()
+    except Exception as e:
+        # During initial setup, tables might not exist yet
+        total_donations = 0
+        total_amount = 0
+        categories = []
     
     context = {
         'form': form,
