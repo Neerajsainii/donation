@@ -7,6 +7,10 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q
 from django.db import models
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+import razorpay
+import json
 from .models import Donation, DonationCategory, Membership, UserProfile
 from .forms import DonationForm, UserRegisterForm, UserLoginForm, ProfileUpdateForm, UserUpdateForm, MembershipForm
 from django.contrib import messages
@@ -55,6 +59,127 @@ def leaderboard(request):
     }
     
     return render(request, 'leaderboard.html', context)
+
+
+def initialize_razorpay_payment(request):
+    if request.method == 'POST':
+        try:
+            # Initialize Razorpay client with your API keys
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            
+            # Get payment details from POST data
+            amount = int(float(request.POST.get('amount', '0')) * 100)  # Amount in paise
+            currency = request.POST.get('currency', 'INR')
+            name = request.POST.get('name', '')
+            email = request.POST.get('email', '')
+            contact = request.POST.get('contact', '')
+            donation_type = request.POST.get('donationType', '')
+            
+            # Create order
+            payment_data = {
+                'amount': amount,
+                'currency': currency,
+                'receipt': f'donation-{donation_type}-{email}',
+                'notes': {
+                    'name': name,
+                    'email': email,
+                    'contact': contact,
+                    'donation_type': donation_type
+                }
+            }
+            
+            # Create Razorpay Order
+            order = client.order.create(data=payment_data)
+            
+            # Return order details to client
+            return JsonResponse({
+                'id': order['id'],
+                'amount': amount,
+                'currency': currency,
+                'key': settings.RAZORPAY_KEY_ID
+            })
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@csrf_exempt
+def payment_callback(request):
+    if request.method == 'POST':
+        try:
+            # Get payment details from POST
+            payment_id = request.POST.get('razorpay_payment_id', '')
+            order_id = request.POST.get('razorpay_order_id', '')
+            signature = request.POST.get('razorpay_signature', '')
+            
+            # Initialize Razorpay client
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            
+            # Verify signature
+            params_dict = {
+                'razorpay_payment_id': payment_id,
+                'razorpay_order_id': order_id,
+                'razorpay_signature': signature
+            }
+            
+            # Verify the payment signature
+            client.utility.verify_payment_signature(params_dict)
+            
+            # Get payment details from Razorpay
+            payment = client.payment.fetch(payment_id)
+            
+            # Create donation record
+            name = payment['notes'].get('name', '')
+            email = payment['notes'].get('email', '')
+            contact = payment['notes'].get('contact', '')
+            donation_type = payment['notes'].get('donation_type', '')
+            amount = float(payment['amount']) / 100  # Convert paise to rupees
+            
+            # Try to find the user by email
+            user = None
+            if email:
+                try:
+                    user = User.objects.get(email=email)
+                except User.DoesNotExist:
+                    pass
+            
+            # Try to find donation category
+            category = None
+            if donation_type:
+                try:
+                    category = DonationCategory.objects.get(name=donation_type)
+                except DonationCategory.DoesNotExist:
+                    # Create the category if it doesn't exist
+                    category = DonationCategory.objects.create(
+                        name=donation_type,
+                        description=f"Donations for {donation_type}"
+                    )
+            
+            # Create donation
+            donation = Donation.objects.create(
+                user=user,
+                name=name,
+                email=email,
+                contact=contact,
+                amount=amount,
+                category=category,
+                payment_method='razorpay',
+                transaction_id=payment_id,
+                status='completed'  # Automatically mark as completed since verified by Razorpay
+            )
+            
+            # Store payment method in session for thank you page
+            request.session['payment_method'] = 'razorpay'
+            request.session['donation_id'] = donation.id
+            
+            return JsonResponse({'status': 'success', 'redirect_url': '/thank-you/'})
+            
+        except Exception as e:
+            return JsonResponse({'status': 'failed', 'error': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'failed', 'error': 'Invalid request'}, status=400)
 
 
 def donate(request):
@@ -121,11 +246,15 @@ def donate(request):
         total_amount = 0
         categories = []
     
+    # Add Razorpay key to context
+    razorpay_key = settings.RAZORPAY_KEY_ID
+    
     context = {
         'form': form,
         'total_donations': total_donations,
         'total_amount': total_amount,
         'categories': categories,
+        'razorpay_key': razorpay_key,
     }
     
     return render(request, 'donate.html', context)

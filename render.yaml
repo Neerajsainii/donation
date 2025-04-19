@@ -15,6 +15,10 @@ services:
           property: connectionString
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: RAZORPAY_KEY_ID
+        value: "rzp_live_TQjeRP0FvNoOge"
+      - key: RAZORPAY_KEY_SECRET
+        value: "AA9LOk1xZYhKrVz47km3X0uW"
 
 databases:
   - name: donation-postgres-db

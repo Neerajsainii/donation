@@ -16,4 +16,8 @@ urlpatterns = [
     path('process-membership/', views.process_membership, name='process_membership'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('verify-donation/<int:donation_id>/', views.verify_donation, name='verify_donation'),
+    
+    # Razorpay integration
+    path('create-razorpay-order/', views.initialize_razorpay_payment, name='create_razorpay_order'),
+    path('payment-callback/', views.payment_callback, name='payment_callback'),
 ]

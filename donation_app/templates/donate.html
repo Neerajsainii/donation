@@ -959,6 +959,8 @@
         </div>
     </footer>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Select donation amount - just display, no selection needed
         document.querySelectorAll('.amount-option').forEach(item => {
@@ -1033,8 +1035,164 @@
                 });
             }
         });
+        
+        // Razorpay integration
+        const razorpayKey = "{{ razorpay_key }}";
+        
+        function initializeRazorpayPayment(donationType, amount, name, email, contact) {
+            // Create form data for the order creation
+            const formData = new FormData();
+            formData.append('amount', amount);
+            formData.append('currency', 'INR');
+            formData.append('name', name || 'Guest');
+            formData.append('email', email || '');
+            formData.append('contact', contact || '');
+            formData.append('donationType', donationType);
+            
+            // Create the Razorpay order
+            fetch("{% url 'create_razorpay_order' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error creating order: ' + data.error);
+                    return;
+                }
+                
+                // Configure Razorpay options
+                const options = {
+                    key: razorpayKey,
+                    amount: data.amount,
+                    currency: data.currency,
+                    name: "Krishna Devotees Donation",
+                    description: donationType,
+                    order_id: data.id,
+                    handler: function(response) {
+                        // Handle successful payment
+                        handlePaymentSuccess(response, donationType);
+                    },
+                    prefill: {
+                        name: name || '',
+                        email: email || '',
+                        contact: contact || ''
+                    },
+                    notes: {
+                        donation_type: donationType
+                    },
+                    theme: {
+                        color: "#ff7000"
+                    }
+                };
+                
+                // Initialize Razorpay
+                const rzp = new Razorpay(options);
+                rzp.open();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+        
+        function handlePaymentSuccess(response, donationType) {
+            // Create form data for the payment callback
+            const formData = new FormData();
+            formData.append('razorpay_payment_id', response.razorpay_payment_id);
+            formData.append('razorpay_order_id', response.razorpay_order_id);
+            formData.append('razorpay_signature', response.razorpay_signature);
+            
+            // Verify the payment
+            fetch("{% url 'payment_callback' %}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert('Payment verification failed: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during payment verification.');
+            });
+        }
+        
+        // Update all the "Donate Now" buttons to use Razorpay
+        document.addEventListener('DOMContentLoaded', function() {
+            // Food for Life
+            document.querySelector('a[href^="https://razorpay.me/@foodforlife6842"]').addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = document.querySelector('.amount-options[data-donation-type="Food for Life"]');
+                const selected = section.querySelector('.amount-option.selected');
+                const amount = selected ? selected.getAttribute('data-amount') : 0;
+                const name = "{{ user.get_full_name|default:'Guest' }}";
+                const email = "{{ user.email|default:'' }}";
+                const contact = "{{ user.userprofile.contact|default:'' }}";
+                
+                initializeRazorpayPayment('Food for Life', amount, name, email, contact);
+            });
+            
+            // Prasadam Donation
+            document.querySelector('a[href^="https://razorpay.me/@foodforlife6842"][target="_blank"]:nth-of-type(2)').addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = document.querySelector('.amount-options[data-donation-type="Prasadam Donation"]');
+                const selected = section.querySelector('.amount-option.selected');
+                const amount = selected ? selected.getAttribute('data-amount') : 0;
+                const name = "{{ user.get_full_name|default:'Guest' }}";
+                const email = "{{ user.email|default:'' }}";
+                const contact = "{{ user.userprofile.contact|default:'' }}";
+                
+                initializeRazorpayPayment('Prasadam Donation', amount, name, email, contact);
+            });
+            
+            // Sudama Seva
+            document.querySelector('a[href^="https://razorpay.me/@foodforlife6842"][target="_blank"]:nth-of-type(3)').addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = document.querySelector('.amount-options[data-donation-type="Sudama Seva"]');
+                const selected = section.querySelector('.amount-option.selected');
+                const amount = selected ? selected.getAttribute('data-amount') : 0;
+                const name = "{{ user.get_full_name|default:'Guest' }}";
+                const email = "{{ user.email|default:'' }}";
+                const contact = "{{ user.userprofile.contact|default:'' }}";
+                
+                initializeRazorpayPayment('Sudama Seva', amount, name, email, contact);
+            });
+            
+            // Ekadashi Donation
+            document.querySelector('a[href^="https://razorpay.me/@foodforlife6842"][target="_blank"]:nth-of-type(4)').addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = document.querySelector('.amount-options[data-donation-type="Ekadashi Donation"]');
+                const selected = section.querySelector('.amount-option.selected');
+                const amount = selected ? selected.getAttribute('data-amount') : 0;
+                const name = "{{ user.get_full_name|default:'Guest' }}";
+                const email = "{{ user.email|default:'' }}";
+                const contact = "{{ user.userprofile.contact|default:'' }}";
+                
+                initializeRazorpayPayment('Ekadashi Donation', amount, name, email, contact);
+            });
+            
+            // Shravan Kumar Seva
+            document.querySelector('a[href^="https://razorpay.me/@foodforlife6842"][target="_blank"]:nth-of-type(5)').addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = document.querySelector('.amount-options[data-donation-type="Shravan Kumar Seva"]');
+                const selected = section.querySelector('.amount-option.selected');
+                const amount = selected ? selected.getAttribute('data-amount') : 0;
+                const name = "{{ user.get_full_name|default:'Guest' }}";
+                const email = "{{ user.email|default:'' }}";
+                const contact = "{{ user.userprofile.contact|default:'' }}";
+                
+                initializeRazorpayPayment('Shravan Kumar Seva', amount, name, email, contact);
+            });
+        });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
